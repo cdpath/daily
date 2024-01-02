@@ -1,7 +1,10 @@
+from datetime import datetime
 import smtplib
 import os
 from email.message import EmailMessage
 
+
+current_date_str = datetime.now().strftime("%Y%m%d")
 
 email_user = os.environ.get('EMAIL_USER')
 email_password = os.environ.get('EMAIL_PASSWORD')
@@ -18,7 +21,7 @@ msg.set_content('Please find the attached LeetCode question.')
 file_path = 'LeetCode_Question.pdf'
 with open(file_path, 'rb') as f:
     file_data = f.read()
-msg.add_attachment(file_data, maintype='application', subtype='octet-stream', filename='LeetCode_Question.pdf')
+msg.add_attachment(file_data, maintype='application', subtype='octet-stream', filename=f'LeetCode_Question_{current_date_str}.pdf')
 
 
 with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
