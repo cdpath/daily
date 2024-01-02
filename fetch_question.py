@@ -1,63 +1,103 @@
-import requests
+import os
 import json
+from typing import Dict
 
-url = 'https://leetcode.com/graphql/'
+import requests
+
 headers = {
     'content-type': 'application/json',
     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 }
-data = {
-    "query": """
-        query questionOfToday {
-            activeDailyCodingChallengeQuestion {
-                date
-                userStatus
-                link
-                question {
-                    acRate
-                    difficulty
-                    freqBar
-                    frontendQuestionId: questionFrontendId
-                    isFavor
-                    paidOnly: isPaidOnly
-                    status
-                    title
-                    titleSlug
-                    hasVideoSolution
-                    hasSolution
-                    topicTags {
-                        name
-                        id
-                        slug
+
+LANGUAGE = os.environ.get('LANGUAGE', "zh")
+
+
+def get_question_of_today(region: str = "us") -> Dict:
+    if region == "us":
+        url = 'https://leetcode.com/graphql/'
+        key = "activeDailyCodingChallengeQuestion"
+    else:
+        url = 'https://leetcode.cn/graphql/'
+        key = "todayRecord"
+
+    data = {
+        "query": """
+            query questionOfToday {
+                %s {
+                    question {
+                        acRate
+                        difficulty
+                        freqBar
+                        frontendQuestionId: questionFrontendId
+                        paidOnly: isPaidOnly
+                        status
+                        title
+                        titleSlug
+                        topicTags {
+                            name
+                            id
+                            slug
+                        }
                     }
                 }
             }
+        """ % key,
+    }
+
+    resp = requests.post(url, headers=headers, json=data)
+    resp.raise_for_status()
+    question_data = resp.json()['data'][key]
+    if isinstance(question_data, list):
+        question_data = question_data[0]
+    return question_data["question"]
+
+
+def get_question_content(title_slug: str, region: str = "us"):
+    if LANGUAGE == "en":
+        url = 'https://leetcode.com/graphql/'
+        query_question_content = """
+        query questionContent($titleSlug: String!) {
+          question(titleSlug: $titleSlug) {
+            content
+          }
         }
-    """,
-    "variables": {},
-    "operationName": "questionOfToday"
-}
+        """
+        key = "content"
+    else:
+        url = 'https://leetcode.cn/graphql/'
+        query_question_content = """
+        query questionTranslations($titleSlug: String!) {
+          question(titleSlug: $titleSlug) {
+            translatedTitle
+            translatedContent
+          }
+        }
+        """
+        key = "translatedContent"
 
-response = requests.post(url, headers=headers, json=data)
-question_data = response.json()['data']['activeDailyCodingChallengeQuestion']
-"""
-{'data': {'activeDailyCodingChallengeQuestion': {'date': '2024-01-02', 'userStatus': 'NotStart', 'link': '/problems/convert-an-array-into-a-2d-array-with-conditions/', 'question': {'acRate': 87.37286733432606, 'difficulty': 'Medium', 'freqBar': None, 'frontendQuestionId': '2610', 'isFavor': False, 'paidOnly': False, 'status': None, 'title': 'Convert an Array Into a 2D Array With Conditions', 'titleSlug': 'convert-an-array-into-a-2d-array-with-conditions', 'hasVideoSolution': False, 'hasSolution': True, 'topicTags': [{'name': 'Array', 'id': 'VG9waWNUYWdOb2RlOjU=', 'slug': 'array'}, {'name': 'Hash Table', 'id': 'VG9waWNUYWdOb2RlOjY=', 'slug': 'hash-table'}]}}}}
-"""
+    variables = {"titleSlug": title_slug}
+    resp = requests.post(url, headers=headers, json={'query': query_question_content, 'variables': variables})
+    content = resp.json()['data']['question'][key]
+    return content
 
-title_slug = question_data['question']['titleSlug']
-query_question_content = """
-query questionContent($titleSlug: String!) {
-  question(titleSlug: $titleSlug) {
-    content
-  }
-}
-"""
-variables = {"titleSlug": title_slug}
-response = requests.post(url, headers=headers, json={'query': query_question_content, 'variables': variables})
-content = response.json()['data']['question']['content']
-question_data["content"] = content
 
-print(question_data)
+def save(question_data, output_filename = "question.json"):
+    with open(output_filename, 'w') as f:
+        json.dump(question_data, f)
 
-with open('question.json', 'w') as file:
-    json.dump(question_data, file)
+
+def main():
+    questions = []
+    for region in ["us", "zh"]:
+        print("processing region: %s" % region)
+        question_data = get_question_of_today(region)
+        title_slug = question_data['titleSlug']
+        content = get_question_content(title_slug, region)
+        print("content is %s" % content)
+        question_data["content"] = content
+        questions.append(question_data)
+    save(questions)
+
+
+if __name__ == "__main__":
+    main()

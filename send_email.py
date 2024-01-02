@@ -21,7 +21,7 @@ msg.set_content('Please find the attached LeetCode question.')
 file_path = 'LeetCode_Question.pdf'
 with open(file_path, 'rb') as f:
     file_data = f.read()
-msg.add_attachment(file_data, maintype='application', subtype='octet-stream', filename=f'LeetCode_Question_{current_date_str}.pdf')
+msg.add_attachment(file_data, maintype='application', subtype='octet-stream', filename=f'LeetCode_{current_date_str}.pdf')
 
 
 with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
