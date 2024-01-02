@@ -2,7 +2,7 @@ name: LeetCode Daily Question
 
 on:
   schedule:
-    - cron: '0 1 * * *'  # UTC 01:00 Everyday
+    - cron: '0 20 * * *'  # UTC 20:00 Every day, which is 04:00 Beijing time next day
   workflow_dispatch:
 
 jobs:
