@@ -1,6 +1,7 @@
 on:
   schedule:
     - cron: '0 1 * * *' # UTC 01:00 everyday
+  workflow_dispatch:
 
 jobs:
   fetch_and_send:
