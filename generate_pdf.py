@@ -1,41 +1,26 @@
-from jinja2 import Template
-import os
-import subprocess
 import json
+import pdfkit
 
-with open("question.json", "r") as file:
+with open('question.json', 'r') as file:
     question_data = json.load(file)
 
-# 从响应中提取问题数据
-question_data = response["data"]["activeDailyCodingChallengeQuestion"]["question"]
-date = response["data"]["activeDailyCodingChallengeQuestion"]["date"]
-link = question_data["link"]
-title = question_data["title"]
-difficulty = question_data["difficulty"]
-acRate = question_data["acRate"]
-topicTags = question_data["topicTags"]
+title = question_data["question"]['title']
+difficulty = question_data["question"]['difficulty']
+acRate = question_data["question"]['acRate']
+topicTags = ', '.join([tag['name'] for tag in question_data["question"]['topicTags']])
 
-# 读取 LaTeX 模板
-with open("template.tex", "r") as file:
-    template = Template(file.read())
+content = question_data['content']
 
-# 使用问题数据渲染 LaTeX 模板
-rendered_tex = template.render(
-    date=date,
-    link=link,
-    title=title,
-    difficulty=difficulty,
-    acRate=acRate,
-    topicTags=topicTags,
-)
+html_content = f"""
+<h1>{title}</h1>
+<div><strong>Difficulty:</strong> {difficulty}</div>
+<div><strong>Acceptance Rate:</strong> {acRate}%</div>
+<div><strong>Topic Tags:</strong> {topicTags}</div>
+<hr>
+{content}
+"""
 
-# 将渲染的 LaTeX 写入新文件
-with open("question.tex", "w") as file:
-    file.write(rendered_tex)
-
-# 调用 LaTeX 引擎生成 PDF
-subprocess.run(["pdflatex", "question.tex"])
-
-# 清理生成的辅助文件
-for ext in (".aux", ".log"):
-    os.remove(f"question{ext}")
+print(html_content)
+# 创建PDF
+pdf_file = "LeetCode_Question.pdf"
+pdfkit.from_string(html_content, pdf_file)

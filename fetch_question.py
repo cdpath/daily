@@ -43,6 +43,20 @@ question_data = response.json()['data']['activeDailyCodingChallengeQuestion']
 """
 {'data': {'activeDailyCodingChallengeQuestion': {'date': '2024-01-02', 'userStatus': 'NotStart', 'link': '/problems/convert-an-array-into-a-2d-array-with-conditions/', 'question': {'acRate': 87.37286733432606, 'difficulty': 'Medium', 'freqBar': None, 'frontendQuestionId': '2610', 'isFavor': False, 'paidOnly': False, 'status': None, 'title': 'Convert an Array Into a 2D Array With Conditions', 'titleSlug': 'convert-an-array-into-a-2d-array-with-conditions', 'hasVideoSolution': False, 'hasSolution': True, 'topicTags': [{'name': 'Array', 'id': 'VG9waWNUYWdOb2RlOjU=', 'slug': 'array'}, {'name': 'Hash Table', 'id': 'VG9waWNUYWdOb2RlOjY=', 'slug': 'hash-table'}]}}}}
 """
+
+title_slug = question_data['question']['titleSlug']
+query_question_content = """
+query questionContent($titleSlug: String!) {
+  question(titleSlug: $titleSlug) {
+    content
+  }
+}
+"""
+variables = {"titleSlug": title_slug}
+response = requests.post(url, headers=headers, json={'query': query_question_content, 'variables': variables})
+content = response.json()['data']['question']['content']
+question_data["content"] = content
+
 print(question_data)
 
 with open('question.json', 'w') as file:
