@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  question_workflow:
+  leetcode_daily_question:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -50,4 +50,6 @@ jobs:
         env:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          KINDLE_EMAIL: ${{ secrets.KINDLE_EMAIL }}
+
 
