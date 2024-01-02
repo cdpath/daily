@@ -1,10 +1,12 @@
+name: LeetCode Daily Question
+
 on:
   schedule:
-    - cron: '0 1 * * *' # UTC 01:00 everyday
+    - cron: '0 1 * * *'  # UTC 01:00 Everyday
   workflow_dispatch:
 
 jobs:
-  fetch_and_send:
+  question_workflow:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -15,11 +17,29 @@ jobs:
         with:
           python-version: '3.8'
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests
+          pip install requests jinja2
+
+      - name: Install LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
 
       - name: Fetch Question
-        run: python question_of_today.py
+        id: fetch_question
+        run: |
+          python fetch_question.py
+
+      - name: Generate PDF
+        run: |
+          python generate_pdf.py
+
+      - name: Send Email
+        run: |
+          python send_email.py
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
 
