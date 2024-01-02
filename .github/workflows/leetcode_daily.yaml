@@ -19,6 +19,12 @@ jobs:
           cache: 'pip'
       - run: pip install -r requirements.txt
 
+      - name: Install Chinese font - Source Han Serif
+        run: |
+          sudo mkdir -p /usr/share/fonts/source-han-serif
+          sudo wget -qO- https://github.com/adobe-fonts/source-han-serif/raw/release/SubsetOTF/CN/SourceHanSerifCN-Regular.otf > /usr/share/fonts/source-han-serif/SourceHanSerifCN-Regular.otf
+          sudo fc-cache -fv
+
       - name: Cache wkthtmltopdf
         uses: actions/cache@v2
         id: cache-wkhtmltopdf

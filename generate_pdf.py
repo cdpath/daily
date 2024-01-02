@@ -12,7 +12,6 @@ for question in questions:
     acRate = question['acRate']
     topicTags = ', '.join([tag['name'] for tag in question['topicTags']])
 
-    # 创建HTML文档
     html_content += f"""
     <html>
     <head>
