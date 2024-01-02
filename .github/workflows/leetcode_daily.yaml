@@ -1,0 +1,4 @@
+on:
+  schedule:
+    - cron: '0 1 * * *' # UTC 01:00 everyday
+
