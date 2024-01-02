@@ -9,7 +9,7 @@ for question in questions:
     title = question['frontendQuestionId'] + ". " + question["title"]
     content = question['content']
     difficulty = question['difficulty']
-    acRate = question['acRate']
+    acRate = f"{question['acRate']*100:.1f}"
     topicTags = ', '.join([tag['name'] for tag in question['topicTags']])
 
     html_content += f"""
