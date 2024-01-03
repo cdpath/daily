@@ -93,9 +93,11 @@ def save(question_data, output_filename="question.json"):
 
 def main():
     questions = []
+    print("Questions of today are")
     for region in ["us", "zh"]:
         question_data = get_question_of_today(region)
         title_slug = question_data["titleSlug"]
+        print("\t%s (%s)" % (title_slug, region))
         question_data["content"] = get_question_content(title_slug, region)
         if question_data["acRate"] > 1:
             question_data["acRate"] = float(question_data["acRate"]) / 100
